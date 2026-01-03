@@ -50,13 +50,14 @@ router.post("/seed-default", async (req, res) => {
       title: "System Default Routine",
       isActive: true,
       tasks: [
-        { title: "Wake up early", description: "Before 7:00 AM" },
-        { title: "Study / Learn 30 minutes", description: "Skill or reading" },
-        { title: "Avoid unnecessary spending", description: "No impulse purchases" },
-        { title: "Exercise or walk", description: "15–30 mins for health" },
-        { title: "Save a small amount", description: "Even ₹10 counts" },
-        { title: "Reflect for 5 minutes", description: "Think about your day" },
-      ],
+  { title: "Wake up on time", description: "Before 7:00 AM" },
+  { title: "Plan the day", description: "Top 3 priorities" },
+  { title: "Deep focus session", description: "30–60 mins distraction-free" },
+  { title: "Learn something", description: "Skill, book, or course" },
+  { title: "Move your body", description: "Walk, stretch, or workout" },
+  { title: "Control spending", description: "No impulse buys" },
+  { title: "Reflect & shutdown", description: "Review the day, plan tomorrow" }
+],
     });
 
     res.status(201).json({

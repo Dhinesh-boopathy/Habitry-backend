@@ -14,7 +14,7 @@ const app = express();
 // middlewares
 app.use(cors());
 app.use(express.json());
- 
+  
 app.use("/auth", authRoutes);
 
 app.use("/routine", routineRoute);
