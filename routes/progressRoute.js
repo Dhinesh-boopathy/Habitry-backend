@@ -1,4 +1,3 @@
-
 import express from "express";
 import mongoose from "mongoose";
 import DailyProgress from "../models/DailyProgress.js";
@@ -35,6 +34,7 @@ router.get("/today", requireAuth, async (req, res) => {
 /* ---------------------------------------------------------
    POST /progress/today
    Save TODAY progress (partial allowed)
+   🔒 Only TODAY can be modified
 --------------------------------------------------------- */
 router.post("/today", requireAuth, async (req, res) => {
   try {
@@ -43,6 +43,14 @@ router.post("/today", requireAuth, async (req, res) => {
 
     if (!date || !Array.isArray(completedTaskIds)) {
       return res.status(400).json({ message: "Invalid payload" });
+    }
+
+    // 🔒 ENFORCE TODAY ONLY
+    const today = new Date().toISOString().split("T")[0];
+    if (date !== today) {
+      return res.status(403).json({
+        message: "Only today's progress can be modified",
+      });
     }
 
     const progress = await DailyProgress.findOneAndUpdate(
@@ -99,6 +107,7 @@ router.post("/", requireAuth, async (req, res) => {
 
 /* ---------------------------------------------------------
    GET /progress/month
+   Return per-day progress INCLUDING task-level data
 --------------------------------------------------------- */
 router.get("/month", requireAuth, async (req, res) => {
   try {
@@ -123,6 +132,7 @@ router.get("/month", requireAuth, async (req, res) => {
       result[r.date] = {
         completed: r.completed,
         total: r.total,
+        completedTaskIds: r.completedTaskIds || [],
       };
     });
 
