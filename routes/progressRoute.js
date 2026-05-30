@@ -228,7 +228,10 @@ router.get(
               r.completedTaskIds || [],
         };
       });
-
+console.log(
+  "MONTH RESULT:",
+  JSON.stringify(result, null, 2)
+);
       res.json(result);
     } catch (err) {
       console.error(
