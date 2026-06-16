@@ -29,6 +29,10 @@ app.get("/health", (req, res) => {
   res.json({
     status: "ok",
     message: "Backend server is running ✅",
+    version: "delete-account-route-2026-06-16",
+    routes: {
+      deleteAccount: "DELETE /auth/account",
+    },
   });
 });
 
