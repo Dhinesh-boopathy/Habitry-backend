@@ -2,9 +2,8 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import DailyProgress from "../models/DailyProgress.js";
-import RoutineTemplate from "../models/RoutineTemplate.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
+import { deleteAccount } from "../utils/deleteAccount.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
@@ -74,25 +73,6 @@ router.post("/login", async (req, res) => {
 });
 
 /* -------- DELETE ACCOUNT -------- */
-router.delete("/account", requireAuth, async (req, res) => {
-  try {
-    const userId = req.userId;
-
-    // Delete user
-    const deletedUser = await User.findByIdAndDelete(userId);
-    if (!deletedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Delete associated data
-    await DailyProgress.deleteMany({ userId });
-    await RoutineTemplate.deleteMany({ userId });
-
-    res.json({ message: "Account and associated data deleted successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+router.delete("/account", requireAuth, deleteAccount);
  
 export default router;

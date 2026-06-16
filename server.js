@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 import routineRoute from "./routes/routineRoute.js";
 import progressRoutes from "./routes/progressRoute.js";
 import authRoutes from "./routes/authRoute.js"; 
+import { requireAuth } from "./middleware/authMiddleware.js";
+import { deleteAccount } from "./utils/deleteAccount.js";
 
 
 dotenv.config();
@@ -14,9 +16,10 @@ const app = express();
 // middlewares
 app.use(cors());
 app.use(express.json());
-  app.get("/auth-test", (req, res) => {
+app.get("/auth-test", (req, res) => {
   res.json({ message: "auth routes loaded" });
 });
+app.delete("/auth/account", requireAuth, deleteAccount);
 app.use("/auth", authRoutes);
 
 app.use("/routine", routineRoute);
