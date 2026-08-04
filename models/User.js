@@ -25,6 +25,17 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+
+    // Stored as a hash so a database leak cannot be used to reset passwords.
+    resetPasswordToken: {
+      type: String,
+      select: false,
+    },
+
+    resetPasswordExpires: {
+      type: Date,
+      select: false,
+    },
   },
   {
     timestamps: true,
