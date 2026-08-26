@@ -10,12 +10,12 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 const RESET_TOKEN_TTL_MS = 15 * 60 * 1000;
 
-async function sendResetEmail(email, resetUrl) {
+async function sendResetEmail(email, code) {
   const { RESEND_API_KEY, EMAIL_FROM } = process.env;
 
   if (!RESEND_API_KEY || !EMAIL_FROM) {
     if (process.env.NODE_ENV !== "production") {
-      console.info(`Password reset link for ${email}: ${resetUrl}`);
+      console.info(`Password reset code for ${email}: ${code}`);
       return;
     }
     throw new Error("Password reset email is not configured");
@@ -31,7 +31,7 @@ async function sendResetEmail(email, resetUrl) {
       from: EMAIL_FROM,
       to: [email],
       subject: "Reset your Habitry password",
-      html: `<p>We received a request to reset your Habitry password.</p><p><a href="${resetUrl}">Reset password</a></p><p>This link expires in 15 minutes. If you did not request it, you can safely ignore this email.</p>`,
+      html: `<p>We received a request to reset your Habitry password.</p><p>Your verification code is: <strong>${code}</strong></p><p>This code expires in 15 minutes. If you did not request it, you can safely ignore this email.</p>`,
     }),
   });
 
@@ -119,16 +119,13 @@ router.post("/forgot-password", async (req, res) => {
       return res.json({ message });
     }
 
-    const token = crypto.randomBytes(32).toString("hex");
-    user.resetPasswordToken = crypto.createHash("sha256").update(token).digest("hex");
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetPasswordToken = crypto.createHash("sha256").update(code).digest("hex");
     user.resetPasswordExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS);
     await user.save();
 
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    const resetUrl = `${frontendUrl.replace(/\/$/, "")}/reset-password?token=${token}`;
-
     try {
-      await sendResetEmail(user.email, resetUrl);
+      await sendResetEmail(user.email, code);
     } catch (emailError) {
       user.resetPasswordToken = undefined;
       user.resetPasswordExpires = undefined;
@@ -138,7 +135,7 @@ router.post("/forgot-password", async (req, res) => {
 
     const response = { message };
     if (process.env.NODE_ENV !== "production" && !process.env.RESEND_API_KEY) {
-      response.resetUrl = resetUrl;
+      response.code = code;
     }
     res.json(response);
   } catch (err) {
@@ -150,22 +147,23 @@ router.post("/forgot-password", async (req, res) => {
 /* -------- RESET PASSWORD -------- */
 router.post("/reset-password", async (req, res) => {
   try {
-    const { token, password } = req.body;
-    if (!token || !password) {
-      return res.status(400).json({ message: "Reset token and new password are required" });
+    const { email, code, password } = req.body;
+    if (!email || !code || !password) {
+      return res.status(400).json({ message: "Email, reset code, and new password are required" });
     }
     if (password.length < 6) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const tokenHash = crypto.createHash("sha256").update(code).digest("hex");
     const user = await User.findOne({
+      email: email.trim().toLowerCase(),
       resetPasswordToken: tokenHash,
       resetPasswordExpires: { $gt: new Date() },
     }).select("+resetPasswordToken +resetPasswordExpires");
 
     if (!user) {
-      return res.status(400).json({ message: "This reset link is invalid or has expired" });
+      return res.status(400).json({ message: "This reset code is invalid or has expired" });
     }
 
     user.password = await bcrypt.hash(password, 10);
