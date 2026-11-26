@@ -15,7 +15,6 @@ async function sendResetEmail(email, code) {
 
   if (!RESEND_API_KEY || !EMAIL_FROM) {
     if (process.env.NODE_ENV !== "production") {
-      console.info(`Password reset code for ${email}: ${code}`);
       return;
     }
     throw new Error("Password reset email is not configured");
@@ -63,8 +62,7 @@ router.post("/register", async (req, res) => {
     });
 
     res.json({ message: "Registered successfully" });
-  } catch (err) {
-    console.error(err);
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -98,8 +96,7 @@ router.post("/login", async (req, res) => {
         email: user.email,
       },
     });
-  } catch (err) {
-    console.error(err);
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -138,8 +135,7 @@ router.post("/forgot-password", async (req, res) => {
       response.code = code;
     }
     res.json(response);
-  } catch (err) {
-    console.error("Forgot password error:", err);
+  } catch {
     res.status(500).json({ message: "Unable to start password reset. Please try again." });
   }
 });
@@ -172,8 +168,7 @@ router.post("/reset-password", async (req, res) => {
     await user.save();
 
     res.json({ message: "Password reset successfully. You can now log in." });
-  } catch (err) {
-    console.error("Reset password error:", err);
+  } catch {
     res.status(500).json({ message: "Unable to reset password. Please try again." });
   }
 });

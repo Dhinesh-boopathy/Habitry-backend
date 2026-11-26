@@ -40,12 +40,7 @@ router.get(
           total: 0,
         }
       );
-    } catch (err) {
-      console.error(
-        "Fetch today progress error:",
-        err
-      );
-
+    } catch {
       res.status(500).json({
         message: "Server error",
       });
@@ -106,12 +101,7 @@ router.post(
       );
 
       res.json(progress);
-    } catch (err) {
-      console.error(
-        "Save today progress error:",
-        err
-      );
-
+    } catch {
       res.status(500).json({
         message: "Server error",
       });
@@ -164,12 +154,7 @@ router.post(
       );
 
       res.json(progress);
-    } catch (err) {
-      console.error(
-        "Save progress error:",
-        err
-      );
-
+    } catch {
       res.status(500).json({
         message: "Server error",
       });
@@ -228,17 +213,8 @@ router.get(
               r.completedTaskIds || [],
         };
       });
-console.log(
-  "MONTH RESULT:",
-  JSON.stringify(result, null, 2)
-);
       res.json(result);
-    } catch (err) {
-      console.error(
-        "Fetch month progress error:",
-        err
-      );
-
+    } catch {
       res.status(500).json({
         message: "Server error",
       });
@@ -276,12 +252,7 @@ router.get(
         streak,
         bestStreak,
       });
-    } catch (err) {
-      console.error(
-        "Streak fetch error:",
-        err
-      );
-
+    } catch {
       res.status(500).json({
         message: "Server error",
       });

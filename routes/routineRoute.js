@@ -5,7 +5,6 @@ import RoutineTemplate from "../models/RoutineTemplate.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 
 const router = Router();
-console.log("✅ routineRoute loaded");
 
 /**
  * ---------------------------------------------------------
@@ -21,8 +20,7 @@ router.get("/templates", requireAuth, async (req, res) => {
       .select("_id title tasks isActive createdAt");
 
     res.json(templates);
-  } catch (err) {
-    console.error("Fetch templates failed:", err);
+  } catch {
     res.status(500).json({ message: "Failed to fetch templates" });
   }
 });
@@ -167,7 +165,6 @@ router.post("/custom", requireAuth, async (req, res) => {
       routine,
     });
   } catch (err) {
-    console.error("Create template failed:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -226,7 +223,6 @@ router.put("/template/:id", requireAuth, async (req, res) => {
       template,
     });
   } catch (err) {
-    console.error("Update template failed:", err);
     res.status(500).json({ error: err.message });
   }
 });

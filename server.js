@@ -39,15 +39,8 @@ app.get("/health", (req, res) => {
 // connect DB
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("🟢 MongoDB connected");
-  })
-  .catch((err) => {
-    console.error("🔴 MongoDB connection failed:", err.message);
-  });
+  .catch(() => {});
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+app.listen(PORT);

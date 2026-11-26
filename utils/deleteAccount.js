@@ -19,8 +19,7 @@ export async function deleteAccount(req, res) {
     res.json({
       message: "Account and associated data deleted successfully",
     });
-  } catch (err) {
-    console.error("Delete account failed:", err);
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 }
