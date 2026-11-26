@@ -256,15 +256,25 @@ router.post("/activate/:id", requireAuth, async (req, res) => {
       });
     }
 
+    // Deactivate the user's other templates, then explicitly activate the
+    // requested template by both its ID and owner. Return the active record so
+    // callers can rely on which template was selected.
     await RoutineTemplate.updateMany(
-      { userId },
-      { isActive: false }
+      { userId, _id: { $ne: templateId } },
+      { $set: { isActive: false } }
     );
 
-    template.isActive = true;
-    await template.save();
+    const activeTemplate = await RoutineTemplate.findOneAndUpdate(
+      { _id: templateId, userId },
+      { $set: { isActive: true } },
+      { new: true }
+    );
 
-    res.json({ message: "Template activated" });
+    if (!activeTemplate) {
+      return res.status(404).json({ message: "Template not found" });
+    }
+
+    res.json({ message: "Template activated", template: activeTemplate });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
